@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Todo;
 use Illuminate\Http\Request;
 
 class TodosController extends Controller
@@ -13,7 +14,9 @@ class TodosController extends Controller
      */
     public function index()
     {
-        //
+        $todos = Todo::orderBy('created_at', 'asc')->get();
+
+        return view('index')->with('todos', $todos);
     }
 
     /**
@@ -23,7 +26,7 @@ class TodosController extends Controller
      */
     public function create()
     {
-        //
+       return view('create');
     }
 
     /**
@@ -34,7 +37,19 @@ class TodosController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->validate($request, [
+            'title' => 'required',
+            'content' => 'required',
+            'due' => 'required'
+        ]);
+
+        Todo::create([
+            'title' => $request->title,
+            'content' => $request->content,
+            'due' => $request->due
+        ]);
+
+        return redirect('/')->with('success', 'Todo was successfully created');
     }
 
     /**
@@ -45,7 +60,9 @@ class TodosController extends Controller
      */
     public function show($id)
     {
-        //
+        $todo = Todo::find($id);
+
+        return view('show')->with('todo', $todo);
     }
 
     /**
@@ -56,7 +73,9 @@ class TodosController extends Controller
      */
     public function edit($id)
     {
-        //
+        $todo = Todo::find($id);
+
+        return view('edit')->with('todo', $todo);
     }
 
     /**
@@ -68,7 +87,19 @@ class TodosController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $this->validate($request, [
+            'title' => 'required',
+            'content' => 'required',
+            'due' => 'required'
+        ]);
+
+        Todo::where('id', $id)->update([
+            'title' => $request->title,
+            'content' => $request->content,
+            'due' => $request->due
+        ]);
+
+        return redirect('/')->with('success', 'Todo was successfully edited');
     }
 
     /**
@@ -79,6 +110,8 @@ class TodosController extends Controller
      */
     public function destroy($id)
     {
-        //
+        Todo::destroy($id);
+        
+        return redirect('/')->with('success', 'Todo was successfully deleted');
     }
 }
